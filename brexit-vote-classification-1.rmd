@@ -1,0 +1,145 @@
+---
+title: "Predicting the brexit vote"
+author: ""
+date: "8/13/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Data
+
+- In this assignment, we will work on a classification task of Brexit referendum vote
+- The data is originally from British Election Study Online Panel
+- The outcome is `LeaveVote` (1: Leave, 2: Remain)
+
+## Libraries
+
+- We will use the following packages
+
+```{r}
+library(tidyverse)
+library(caret)
+library(glmnet)
+```
+
+## Load data
+
+We sub-sample the data. Full data takes too much time to estimate for the class... (Feel free to run full sample after the class)
+
+```{r}
+set.seed(20200813)
+data_brexit <- read_csv("data/data_bes.csv.gz") %>%
+  sample_n(3000) # sampling data so
+```
+
+
+## Data preparation
+
+- We will carry out:
+  - make `LeaveVote` factor variable
+  - test train split
+  - preprocess
+
+
+```{r}
+data_brexit <- data_brexit %>%
+    mutate(LeaveVote = factor(LeaveVote))
+```
+
+### Train-test split
+
+```{r}
+train_idx <- createDataPartition(data_brexit$LeaveVote, p = .7, list = F) 
+
+data_train <- data_brexit %>% slice(train_idx)
+data_test <- data_brexit %>% slice(-train_idx)
+```
+
+### Preprocess
+
+```{r}
+prep <- preProcess(data_train %>% select(-LeaveVote), method = c("center", "scale"))
+prep
+
+data_train_preped <- predict(prep, data_train)
+data_test_preped <- predict(prep, data_test)
+
+```
+
+## Model formulas
+
+There are four logistic regression models  in the manuscript (Table 2).
+
+1. Sociodemographics
+2. Identity
+3. Anti-elite
+4. Attitudes
+
+The following line of codes will generate the each model. 
+
+```{r}
+fm_socdem <- formula("LeaveVote ~ gender + age + edlevel + hhincome + econPersonalRetro1")
+fm_identity <- formula("LeaveVote ~ gender + age + edlevel + hhincome + 
+                        EuropeanIdentity + EnglishIdentity + BritishIdentity")
+fm_antielite <- formula("LeaveVote ~ gender + age + edlevel + hhincome + 
+              PolMistrust + GovDisapproval + PopulismScale + 
+              ConVote + LabVote + LibVote + SNPPCVote + UKIP")
+fm_attitudes <- formula("LeaveVote ~ gender + age + edlevel + hhincome + euUKNotRich + 
+              euNotPreventWar + FreeTradeBad + euParlOverRide1 + euUndermineIdentity1 + 
+              lessEUmigrants + effectsEUTrade1 + effectsEUImmigrationLower")
+fm_all <- formula("LeaveVote ~ .")
+
+
+```
+
+You can use these formulas in a way like:
+
+```{r eval = F}
+# for model
+glm(fm_socdem, data = data_train_preped, family = "binomial")
+# for data extraction
+model.matrix(fm_socdem, data = data_train_preped) %>% head()
+
+```
+
+## Logistic regression
+
+Run a few models, and evaluate them. Which one has the better predictive performance?
+
+```{r}
+
+```
+
+## Linear SVM
+
+- Train a linear SVM model, check the predictive performance. How does it compare to the logistic regression?
+
+```{r}
+
+```
+
+
+## Polynomial SVM and Radial SVM
+
+- Train non-linear SVM. How is the performance? Any improvement?
+
+```{r}
+
+
+```
+
+
+## (Optional) Logistic regression with LASSO
+
+- `glmnet` can run a Logistic model with L1 penalty (LASSO). 
+- Try a "full" model combining all inputs.
+  - Which inupts survived?
+
+```{r}
+
+```
+
+
