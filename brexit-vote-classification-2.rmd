@@ -1,7 +1,7 @@
 ---
-title: "Predicting the brexit vote"
+title: "Predicting the brexit vote: Tree-based method"
 author: ""
-date: "8/13/2020"
+date: "8/14/2020"
 output: html_document
 ---
 
@@ -11,7 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Data
 
-- In this assignment, we will work on a classification task of Brexit referendum vote
+- In this assignment, we will work on a classification task of brexit referendum vote
 - The data is originally from British Election Study Online Panel
   - codebook: https://www.britishelectionstudy.com/wp-content/uploads/2020/05/Bes_wave19Documentation_V2.pdf
 - The outcome is `LeaveVote` (1: Leave, 0: Remain)
@@ -23,7 +23,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r}
 library(tidyverse)
 library(caret)
-library(glmnet)
+library(tree)
 ```
 
 ## Load data
@@ -93,54 +93,27 @@ fm_attitudes <- formula("LeaveVote ~ gender + age + edlevel + hhincome + euUKNot
               lessEUmigrants + effectsEUTrade1 + effectsEUImmigrationLower")
 fm_all <- formula("LeaveVote ~ .")
 
-
 ```
 
-You can use these formulas in a way like:
+
+## Simple tree method
+
+- Estimate a simple classification tree, using one of the formula above. 
+- Draw tree
+- Evaluate the model
+- What do you find?
 
 ```{r eval = F}
-# for model
-glm(fm_socdem, data = data_train_preped, family = "binomial")
-# for data extraction
-model.matrix(fm_socdem, data = data_train_preped) %>% head()
 
 ```
 
-## Logistic regression
+## Randowm forest regression and adaBoost
 
-Run a few models, and evaluate them. Which one has the better predictive performance?
-
-```{r}
-
-```
-
-## Linear SVM
-
-- Train a linear SVM model, check the predictive performance. How does it compare to the logistic regression?
-
-```{r}
-
-```
-
-
-## Polynomial SVM and Radial SVM
-
-- Train non-linear SVM. How is the performance? Any improvement?
+- Now, run "forest" models
+- Any improvement of the prediction?
+- For random forest training, use `tuneGrid = data.frame(mtry = c(2:4))`. Otherwise it's too slow...
 
 ```{r cache=T}
 
-
 ```
-
-
-## (Optional) Logistic regression with LASSO
-
-- `glmnet` can run a Logistic model with L1 penalty (LASSO). 
-- Try a "full" model combining all inputs.
-  - Which inupts survived?
-
-```{r}
-
-```
-
 
